@@ -504,3 +504,11 @@ Verification results:
 - Production build successful
 - Combat remains deterministic under a fixed seed
 - The rules documentation has been updated accordingly: [GAME_SYSTEMS.md (line 52)](/Users/yukuanli/Desktop/-Jack-Li-.hw7/docs/GAME_SYSTEMS.md:52)
+
+
+AI Reflection
+
+Before the zero-cost requirement had been confirmed, the AI implemented an OpenAI integration across 13 code, test, and documentation files. After I learned that the OpenAI API was paid, those broad changes were not something I wanted to keep. I stopped that direction and explicitly asked the AI to restore the original code. I then inspected the affected files and moved to a free-tier Gemini design only after confirming its cost and account requirements.
+
+
+These incidents changed how I used the AI for the rest of the project. I asked for small, targeted edits; reviewed `git diff` and `git diff --check`; preserved `SPEC.md`; ran tests after behavior changes; and kept each requested change limited to explicitly named files. Future work should continue with small commits so an unrelated rewrite can be identified and reverted without discarding valid work.
