@@ -28,6 +28,32 @@ test("units move, target only opponents, deal damage, die, and declare a survivo
   sim.step();
   assert.equal(sim.time, time, "finished simulation is frozen");
 });
+test("ranged units hold at attack range and kite nearby melee threats between attacks", () => {
+  const sim = new Simulation(
+    [[{ role: "ranger", count: 1 }], [{ role: "guardian", count: 1 }]],
+    17,
+  );
+  const [ranger, guardian] = sim.units;
+  ranger.x = 0;
+  ranger.z = 0;
+  ranger.cooldownLeft = 1;
+  guardian.x = 2;
+  guardian.z = 0;
+  guardian.speed = 0;
+  guardian.cooldownLeft = 99;
+
+  sim.step();
+  assert.ok(ranger.x < 0, "ranger retreats from a nearby melee threat");
+  assert.equal(ranger.moving, true);
+  assert.equal(guardian.hp, guardian.maxHp);
+
+  ranger.cooldownLeft = 0;
+  const firingX = ranger.x;
+  sim.step();
+  assert.equal(ranger.x, firingX, "ranger stops moving when ready to fire");
+  assert.equal(ranger.moving, false);
+  assert.ok(guardian.hp < guardian.maxHp);
+});
 test("a seed and army configuration produce identical match results and unit stats", () => {
   const armies = [
     offlineArmy(SUGGESTIONS[0]).groups,

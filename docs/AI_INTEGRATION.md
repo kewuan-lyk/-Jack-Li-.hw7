@@ -1,16 +1,16 @@
-# ChatGPT / OpenAI integration
+# Gemini API integration
 
-## What ChatGPT means here
+## What Gemini means here
 
-The game uses an OpenAI GPT model through the **Responses API** to interpret army descriptions. It does not automate the ChatGPT website, embed a chat session, use browser authentication, or obtain credentials from this conversation. Supply an OpenAI API key to the local Node process for live generation.
+The game uses a Google Gemini model through the **GenerateContent API** to interpret army descriptions. Players do not download or run an LLM locally. Supply a Gemini API key to the Node process for live generation, or keep using the built-in offline keyword interpreter without a key.
 
-The integration follows the official [Structured Outputs guide](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses) and [Responses API reference](https://developers.openai.com/api/reference/resources/responses/methods/create). The strict schema is supplied through text.format with type json_schema. Check current provider documentation when changing models or request options.
+The integration follows Google's official [structured output guide](https://ai.google.dev/gemini-api/docs/structured-output) and [GenerateContent migration reference](https://ai.google.dev/gemini-api/docs/migrate-to-interactions). The response MIME type is `application/json`, and the allowed army shape is supplied as `responseSchema`. Check current provider documentation when changing models or request options.
 
 ## Configuration
 
-Copy .env.example to .env, set OPENAI_API_KEY, optionally set OPENAI_MODEL, and restart the server. The default example model is gpt-4o-mini. The selected model must support the Responses API and Structured Outputs used here. Model access and future availability are not guaranteed by the application.
+Copy `.env.example` to `.env`, set `GEMINI_API_KEY`, optionally set `GEMINI_MODEL`, and restart the server. The default model is `gemini-3.5-flash-lite`. The selected model must support GenerateContent structured output. Model access, quotas, free-tier eligibility, and future availability are not guaranteed by the application; check the current [Gemini API pricing page](https://ai.google.dev/gemini-api/docs/pricing).
 
-Never commit real credentials. The key is read only by Node, not by Vite client code. Do not introduce a VITE_OPENAI_API_KEY variable or any key input in the browser. The status badge reports a nonempty configured key; the first real generation verifies access.
+Never commit real credentials. The key is read only by Node, not by Vite client code. Do not introduce a `VITE_GEMINI_API_KEY` variable or any key input in the browser. The status badge reports a nonempty configured key; the first real generation verifies access.
 
 When the key is absent, the server explicitly uses the offline interpreter. The Settings dialog's **Always offline** option bypasses provider generation even with a configured key. If the local API is unavailable, the browser can still use its imported offline interpreter.
 
@@ -19,12 +19,12 @@ When the key is absent, the server explicitly uses the offline interpreter. The 
 1. Browser sends prompt and mode to same-origin POST /api/generate.
 2. Server rejects invalid text length, content type, origin, excessive body size, or excess concurrent generation.
 3. Offline selection or no key uses offlineArmy.
-4. Otherwise Node posts to https://api.openai.com/v1/responses, supplying Authorization in a header.
+4. Otherwise Node posts to `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`, supplying the key in the `x-goog-api-key` header.
 5. The model returns supported groups and a summary under the strict schema.
 6. Server checks incomplete/refused output, parses JSON, and normalizes the army.
 7. Browser re-normalizes the groups before replacing the draft roster.
 
-Requests use store:false, a 2,500-output-token limit, and a 30-second abort timeout. The browser has a 35-second timeout. There is no automatic paid retry loop. The draft timer pauses during generation.
+Requests use temperature zero, a 2,500-output-token limit, and a 30-second abort timeout. The browser has a 35-second timeout. There is no automatic retry loop. The draft timer pauses during generation.
 
 ## Instructions and schema
 
@@ -51,7 +51,7 @@ Strict output improves format reliability but does not replace rule validation. 
       "mode": "offline"
     }
 
-Prompts must contain 3–1,600 characters. The explicit offline mode uses keywords; other values use the configured model or no-key fallback. Success includes normalized groups, notes, cost, count, source (openai/offline), and summary.
+Prompts must contain 3–1,600 characters. The explicit offline mode uses keywords; other values use the configured model or no-key fallback. Success includes normalized groups, notes, cost, count, source (`gemini`/`offline`), and summary.
 
 Errors return an error string. Request/generation failures currently share HTTP 400; content-type errors return 415, origin denials 403, concurrency limits 429, and unknown API paths 404. Provider error payloads and secrets are not forwarded.
 
@@ -61,7 +61,7 @@ At most two generation requests can run concurrently in the process. This is a l
 
 - No key: clearly labeled offline success.
 - Invalid key: instruct the user to check .env and restart.
-- Provider 429: explain limits/API credit and suggest retry or offline mode.
+- Provider 429: explain that the free-tier quota or rate limit was reached and suggest retrying later or using offline mode.
 - Timeout: allow retry or an explicit switch to offline mode.
 - Refusal: ask for a different description.
 - Incomplete response: suggest a shorter prompt/retry.
@@ -84,7 +84,7 @@ It does not understand arbitrary grammar, negation, fictional lore, or every num
 
 ## Privacy
 
-Live generation transmits the army description and game rules to OpenAI. The request specifies store:false; this document does not promise broader provider retention behavior beyond that parameter.
+Live generation transmits the army description and game rules to Google Gemini. Google's pricing page currently distinguishes free-tier and paid-tier data handling and states that free-tier content may be used to improve Google products. Do not submit private or sensitive text. Recheck the current [pricing and data-use terms](https://ai.google.dev/gemini-api/docs/pricing) before public use.
 
 Draft prompts exist in browser memory and completed results are stored in this browser's local history. They are not saved to a game database or sent to a remote opponent. The game does not log keys or prompts itself. Optional Google Fonts are a separate browser request.
 
@@ -94,4 +94,4 @@ This is not a hardened public API. Add authentication, durable request limits, s
 
 tests/generation.test.js injects fake fetch responses and fake keys. It checks strict request format, independent caps, missing-key behavior, source labeling, malformed output, refusals, incomplete responses, and provider failures. Tests consume no API credit.
 
-No real API key was configured during initial development, so **live paid generation remains unverified**. After configuration, generate a small supported prompt and check the source is OpenAI and the roster respects the cap.
+No real API key was configured during this integration, so **live Gemini generation remains unverified**. After configuration, generate a small supported prompt and check the source is Gemini and the roster respects the cap.

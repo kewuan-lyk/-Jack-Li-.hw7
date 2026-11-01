@@ -2,7 +2,7 @@ import http from "node:http";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { generateArmy } from "./generation.js";
+import { DEFAULT_GEMINI_MODEL, generateArmy } from "./generation.js";
 import { offlineArmy } from "../src/game/offline.js";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -55,8 +55,9 @@ const server = http.createServer(async (req, res) => {
   res.setHeader("Referrer-Policy", "same-origin");
   if (url.pathname === "/api/status" && req.method === "GET")
     return json(res, 200, {
-      aiAvailable: Boolean(process.env.OPENAI_API_KEY?.trim()),
-      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      aiAvailable: Boolean(process.env.GEMINI_API_KEY?.trim()),
+      model: process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL,
+      provider: "gemini",
       version: "1.0.0",
     });
   if (url.pathname === "/api/generate" && req.method === "POST") {
@@ -144,7 +145,7 @@ const server = http.createServer(async (req, res) => {
 });
 server.listen(port, host, () =>
   console.log(
-    `\n  BATTLEGROUNDS\n  Local: http://${host}:${server.address().port}\n  Generation: ${process.env.OPENAI_API_KEY?.trim() ? "OpenAI configured" : "offline (no API key)"}\n`,
+    `\n  BATTLEGROUNDS\n  Local: http://${host}:${server.address().port}\n  Generation: ${process.env.GEMINI_API_KEY?.trim() ? "Gemini configured" : "offline (no API key)"}\n`,
   ),
 );
 server.on("error", (error) => {

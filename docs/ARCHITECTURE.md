@@ -21,7 +21,7 @@ Battlegrounds - HW7/
 │   └── favicon.svg             Local vector favicon
 ├── server/
 │   ├── index.js                HTTP lifecycle, routes, dev/static serving
-│   └── generation.js           Responses API call and strict output schema
+│   └── generation.js           Gemini API call and strict output schema
 ├── src/
 │   ├── main.js                 UI screens, interaction handlers, match lifecycle
 │   ├── style.css               Full interface, responsive states, map thumbnails
@@ -59,9 +59,9 @@ Battlegrounds - HW7/
 
 `server/index.js` uses Node's built-in `http` module. Development creates Vite in middleware mode on the same server, so the UI and API share an origin and there is no second API port or CORS configuration. Production mode is selected by `--production`; it serves `dist/` with path containment checks and simple MIME handling. Only static HTML/assets are exposed in production, never `.env` or source directories.
 
-The server loads `.env` through Node's `--env-file-if-exists` flag in the npm scripts. `HOST`, `PORT`, `OPENAI_API_KEY`, and `OPENAI_MODEL` are server environment variables. Vite does not receive a client-facing API key.
+The server loads `.env` through Node's `--env-file-if-exists` flag in the npm scripts. `HOST`, `PORT`, `GEMINI_API_KEY`, and `GEMINI_MODEL` are server environment variables. Vite does not receive a client-facing API key.
 
-`server/generation.js` accepts an army prompt and calls the OpenAI Responses API through the built-in `fetch`. Its exported function accepts an injected fetch implementation for tests. The strict response schema permits a list of approved groups, not executable code. All output passes through `normalizeArmy` before reaching the browser.
+`server/generation.js` accepts an army prompt and calls Gemini's GenerateContent API through the built-in `fetch`. Its exported function accepts an injected fetch implementation for tests. The structured response schema permits a list of approved groups, not executable code. Runtime validation still checks every required field and enum. All output passes through `normalizeArmy` before reaching the browser.
 
 ### Browser coordinator
 
@@ -124,7 +124,7 @@ An army is an array of these groups. `normalizeArmy(input)` returns `{groups, no
   notes: ['...'],
   cost: 950,
   count: 9,
-  source: 'offline',               // or 'openai'
+  source: 'offline',               // or 'gemini'
   summary: 'Keyword interpretation...'
 }
 ```
@@ -138,7 +138,7 @@ The browser re-normalizes results defensively. It records the submitted prompt o
   name: 'The Verdant Order',
   army: [/* groups */],
   prompts: ['...'],                // successful generation submissions, in order
-  source: 'presets',               // presets, offline, or openai
+  source: 'presets',               // presets, offline, or gemini
   message: '...'                   // transient forge feedback; optional
 }
 ```

@@ -2,9 +2,9 @@
 
 ## Original request and decisions
 
-The user asked to implement SPEC.md and be especially thorough about architecture and future-agent documentation. After clarification, they selected a **3D browser game**, **ChatGPT** for the LLM, and an approximately **45-minute initial implementation** with unfinished work acceptable.
+The user asked to implement SPEC.md and be especially thorough about architecture and future-agent documentation. After clarification, they selected a **3D browser game**, initially considered ChatGPT for the LLM, and an approximately **45-minute initial implementation** with unfinished work acceptable. They later chose Gemini's free-tier API so other players can use LLM generation without downloading a local model.
 
-Implementation uses a local Node server, Vite, vanilla JavaScript, and Three.js. No framework, cloud database, remote multiplayer, deployment, or external character-asset pipeline is required. The no-key offline path keeps the game playable. OpenAI generation is optional and follows a server-side structured-output boundary.
+Implementation uses a local Node server, Vite, vanilla JavaScript, and Three.js. No framework, cloud database, remote multiplayer, deployment, or external character-asset pipeline is required. The no-key offline path keeps the game playable. Gemini generation is optional and follows a server-side structured-output boundary.
 
 ## Working implementation
 
@@ -15,7 +15,7 @@ Implementation uses a local Node server, Vite, vanilla JavaScript, and Three.js.
 - Melee, ranged, splash, armor, allied healing, health, death, targeting, movement, body separation, blocker steering, and sudden-death resolution.
 - Orbit/pan/zoom, keyboard flight/altitude, unit selection/inspection, follow, and overview.
 - Pause, playback speeds, short battle feed, optional synthesized sound cues, presets, suggestions, and local history.
-- OpenAI Responses API schema, validation, error messages, offline mode, and server credential separation.
+- Gemini GenerateContent schema, validation, error messages, offline mode, and server credential separation.
 - Automated mechanics, mocked-provider, and DOM-flow tests.
 - Setup, architecture, systems, integration, testing, and development documentation.
 
@@ -25,7 +25,9 @@ Read TESTING.md for the detailed evidence. Automated tests, syntax checks, produ
 
 The initial delivery passed **26 automated tests**, formatting and syntax checks, and **12 production HTTP smoke checks**. Dependencies are installed in the current workspace, and dist contains a successful production build. Development/production preview processes used for verification are stopped at handoff; start your own terminal session with npm run dev or npm start.
 
-**Not verified:** actual interactive WebGL rendering/layout, native pointer camera gestures, graphics performance on the user's device, and live paid OpenAI generation.
+The later Gemini integration also passed all **26 automated tests**, formatting checks, syntax checks, and a production build. Provider tests use injected mock responses and consume no quota.
+
+**Not verified:** actual interactive WebGL rendering/layout, native pointer camera gestures, graphics performance on the user's device, and live Gemini generation.
 
 Browser QA was attempted but Computer Use stopped because it could not verify the current browser URL on Windows. Do not reinterpret DOM tests as visual browser evidence. No API key was available; do not claim the provider badge alone verifies access.
 
@@ -33,7 +35,7 @@ Browser QA was attempted but Computer Use stopped because it could not verify th
 
 1. Run npm run dev and visually open the local game in a supported browser.
 2. Walk through the manual acceptance checklist, especially camera control, arena framing, panel layout, and click selection.
-3. Configure an OpenAI key only if the user wants live generation; run one small prompt and verify source, explanation, and caps.
+3. Configure a Gemini key only if the user wants live generation; run one small prompt and verify source, explanation, and caps.
 4. If an issue is observed, fix that concrete issue before expanding scope.
 
 ## Deliberate scope tradeoffs

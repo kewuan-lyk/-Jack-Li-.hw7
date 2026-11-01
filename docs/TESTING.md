@@ -38,10 +38,14 @@ Initial development took place on Windows using Node 24.15.0.
 - GET / returned HTTP 200.
 - POST /api/generate returned a normalized 950-power, nine-unit army for “Six robot archers, two frost wolves, one healer.”
 - A separate 12-check production HTTP smoke run passed: built HTML/JavaScript assets, status, offline budget enforcement, invalid requests, cross-origin denial, unknown API routes, and denial of private/source files.
-- No real OpenAI API key was configured; live generation was not tested.
+- No real Gemini API key was configured; live generation was not tested.
 - Visual browser QA was attempted through Computer Use. The tool stopped because it could not confidently verify the current browser URL on Windows. No screenshot, visual acceptance, or interactive WebGL verification was completed. No alternate UI automation route was used to bypass this stop.
 
 The production build can report a large-chunk advisory because Three.js is bundled with the game. This is a performance consideration, not a failed build.
+
+## Gemini integration verification
+
+After replacing the optional provider integration with Gemini, all 26 automated tests, formatting checks, syntax checks, and the production build passed again. The provider tests use a fake Gemini response and fake key, verify the structured request, and exercise blocked, incomplete, malformed, invalid-schema, quota, and other provider failures. No live Gemini request or quota was used.
 
 ## Manual acceptance checklist
 

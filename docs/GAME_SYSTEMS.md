@@ -49,7 +49,7 @@ Resolution is simultaneous within a tick. A unit killed that tick can still deli
 
 ## Targeting and healing
 
-Normal attackers choose the nearest living enemy by ground-plane distance and retarget every tick. A target's collision radius extends effective contact range. Ranged units stop once in range; no deliberate backward kiting or line-of-sight checks are implemented.
+Normal attackers choose the nearest living enemy by ground-plane distance and retarget every tick. A target's collision radius extends effective contact range. Ranged units advance until a target enters attack range, then stop to attack. If a melee enemy breaches their preferred spacing, ranged units retreat during weapon cooldown and stop again when the next attack is ready. This deterministic kiting does not include line-of-sight checks.
 
 A mender searches living allies within 12m who are missing more than 8 HP. It prefers the lowest health fraction, then nearest distance. It can heal itself. It approaches until in action range and restores 25 HP. If no qualifying ally exists, it attacks an enemy for 10 damage. Healing is disabled during sudden death.
 

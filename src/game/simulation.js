@@ -4,6 +4,9 @@ import { createMap } from "./maps.js";
 
 export const FIXED_DT = 1 / 60;
 export const SUDDEN_DEATH_AT = 120;
+const RANGED_THRESHOLD = 3;
+const KITE_DISTANCE_RATIO = 0.55;
+const MAX_KITE_DISTANCE = 6;
 const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
 
 /** Pure simulation: no DOM, Three.js, API, wall clock, or global random state. */
@@ -99,8 +102,34 @@ export class Simulation {
         dz = target.z - unit.z;
       const dist = Math.hypot(dx, dz);
       unit.facing = Math.atan2(dx, dz);
-      unit.moving = dist > unit.range + target.radius;
-      if (unit.moving) this.move(unit, dx / (dist || 1), dz / (dist || 1), dt);
+      const inActionRange = dist <= unit.range + target.radius;
+      const meleeThreat =
+        !healing && unit.range > RANGED_THRESHOLD
+          ? alive
+              .filter(
+                (u) => u.team !== unit.team && u.range <= RANGED_THRESHOLD,
+              )
+              .sort((a, b) => distance(unit, a) - distance(unit, b))[0]
+          : null;
+      const threatDistance = meleeThreat ? distance(unit, meleeThreat) : 0;
+      const kiteDistance = meleeThreat
+        ? Math.min(unit.range * KITE_DISTANCE_RATIO, MAX_KITE_DISTANCE) +
+          meleeThreat.radius
+        : 0;
+      const shouldKite =
+        meleeThreat &&
+        threatDistance < kiteDistance &&
+        !(inActionRange && unit.cooldownLeft <= 0);
+
+      unit.moving = shouldKite || !inActionRange;
+      if (shouldKite) {
+        const retreatX = unit.x - meleeThreat.x;
+        const retreatZ = unit.z - meleeThreat.z;
+        const retreatLength = Math.hypot(retreatX, retreatZ) || 1;
+        this.move(unit, retreatX / retreatLength, retreatZ / retreatLength, dt);
+      } else if (unit.moving) {
+        this.move(unit, dx / (dist || 1), dz / (dist || 1), dt);
+      }
       if (!unit.moving && unit.cooldownLeft <= 0) {
         unit.cooldownLeft = unit.cooldown;
         unit.attackFlash = 0.2;

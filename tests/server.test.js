@@ -7,7 +7,7 @@ test("real local server validates API requests and never serves private/source f
   const root = fileURLToPath(new URL("../", import.meta.url));
   const child = spawn(process.execPath, ["server/index.js", "--production"], {
     cwd: root,
-    env: { ...process.env, PORT: "0", HOST: "127.0.0.1", OPENAI_API_KEY: "" },
+    env: { ...process.env, PORT: "0", HOST: "127.0.0.1", GEMINI_API_KEY: "" },
     stdio: ["ignore", "pipe", "pipe"],
     windowsHide: true,
   });
@@ -42,6 +42,8 @@ test("real local server validates API requests and never serves private/source f
   }
   const status = await (await expect("/api/status", undefined, 200)).json();
   assert.equal(status.aiAvailable, false);
+  assert.equal(status.provider, "gemini");
+  assert.equal(status.model, "gemini-3.5-flash-lite");
   assert.ok(!Object.hasOwn(status, "apiKey"));
   const options = (prompt) => ({
     method: "POST",

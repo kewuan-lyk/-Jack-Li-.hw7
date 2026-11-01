@@ -18,8 +18,8 @@ Stop a server using Ctrl+C in its terminal before starting another on the same p
 
 Only the server reads .env. Supported variables:
 
-- OPENAI_API_KEY: optional provider credential. Missing means offline generation.
-- OPENAI_MODEL: model name for structured Responses API generation; defaults to gpt-4o-mini.
+- GEMINI_API_KEY: optional provider credential. Missing means offline generation.
+- GEMINI_MODEL: model name for structured GenerateContent generation; defaults to gemini-3.5-flash-lite.
 - PORT: HTTP port; defaults to 3000.
 - HOST: listen interface; defaults to 127.0.0.1.
 
@@ -43,9 +43,9 @@ The initial Windows workspace sandbox blocked dependency resolution despite the 
 
 Stop the existing project server you own or set another PORT in .env and restart. Do not terminate unrelated user processes.
 
-### “ChatGPT connected” but generation fails
+### “Gemini connected” but generation fails
 
-The badge detects a nonempty key, not a validated provider session. Check the forge error message, model support, account/API access, key, limits, and connectivity. Restart after .env changes. Always offline remains available.
+The badge detects a nonempty key, not a validated provider session. Check the forge error message, model support, account/API access, key, free-tier quota, regional availability, and connectivity. Restart after .env changes. Always offline remains available.
 
 ### Browser shows a blank or unsupported arena
 
